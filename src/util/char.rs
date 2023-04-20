@@ -49,6 +49,9 @@ pub fn before_index(bytes: &[u8], index: usize) -> Option<char> {
 ///
 /// In most cases, markdown operates on ASCII bytes.
 /// In a few cases, it is unicode aware, so we need to find an actual char.
+///
+/// The `index` argument should be a character boundaries.
+/// If it is not a charactar boundary, this function may return a character that does not actually exist in the source.
 pub fn after_index(bytes: &[u8], index: usize) -> Option<char> {
     let end = if index + 4 > bytes.len() {
         bytes.len()
@@ -59,7 +62,10 @@ pub fn after_index(bytes: &[u8], index: usize) -> Option<char> {
 }
 
 /// Classify a char at `index` in bytes (`&[u8]`).
-pub fn kind_after_index(bytes: &[u8], index: usize) -> Kind {
+///
+/// The `index` argument should be a character boundaries.
+/// If it is not a charactar boundary, this function may return a character that does not actually exist in the source.
+pub(crate) fn kind_after_index(bytes: &[u8], index: usize) -> Kind {
     if index == bytes.len() {
         Kind::Whitespace
     } else {

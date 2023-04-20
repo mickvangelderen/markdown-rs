@@ -167,7 +167,7 @@ use crate::tokenizer::Tokenizer;
 use crate::util::{
     char::{
         after_index as char_after_index, format_byte, format_opt as format_char_opt,
-        kind_after_index, Kind as CharacterKind,
+        Kind as CharacterKind,
     },
     identifier::{id_cont, id_start},
 };
@@ -304,8 +304,7 @@ pub fn closing_tag_name_before(tokenizer: &mut Tokenizer) -> State {
 /// ```
 pub fn primary_name(tokenizer: &mut Tokenizer) -> State {
     // End of name.
-    if kind_after_index(tokenizer.parse_state.bytes, tokenizer.point.index)
-        == CharacterKind::Whitespace
+    if tokenizer.current_kind() == CharacterKind::Whitespace
         || matches!(tokenizer.current, Some(b'.' | b'/' | b':' | b'>' | b'{'))
     {
         tokenizer.exit(Name::MdxJsxTagNamePrimary);
@@ -418,8 +417,7 @@ pub fn member_name_before(tokenizer: &mut Tokenizer) -> State {
 pub fn member_name(tokenizer: &mut Tokenizer) -> State {
     // End of name.
     // Note: no `:` allowed here.
-    if kind_after_index(tokenizer.parse_state.bytes, tokenizer.point.index)
-        == CharacterKind::Whitespace
+    if tokenizer.current_kind() == CharacterKind::Whitespace
         || matches!(tokenizer.current, Some(b'.' | b'/' | b'>' | b'{'))
     {
         tokenizer.exit(Name::MdxJsxTagNameMember);
@@ -530,8 +528,7 @@ pub fn local_name_before(tokenizer: &mut Tokenizer) -> State {
 /// ```
 pub fn local_name(tokenizer: &mut Tokenizer) -> State {
     // End of local name (note that we don’t expect another colon, or a member).
-    if kind_after_index(tokenizer.parse_state.bytes, tokenizer.point.index)
-        == CharacterKind::Whitespace
+    if tokenizer.current_kind() == CharacterKind::Whitespace
         || matches!(tokenizer.current, Some(b'/' | b'>' | b'{'))
     {
         tokenizer.exit(Name::MdxJsxTagNameLocal);
@@ -668,8 +665,7 @@ pub fn attribute_expression_after(tokenizer: &mut Tokenizer) -> State {
 /// ```
 pub fn attribute_primary_name(tokenizer: &mut Tokenizer) -> State {
     // End of attribute name or tag.
-    if kind_after_index(tokenizer.parse_state.bytes, tokenizer.point.index)
-        == CharacterKind::Whitespace
+    if tokenizer.current_kind() == CharacterKind::Whitespace
         || matches!(tokenizer.current, Some(b'/' | b':' | b'=' | b'>' | b'{'))
     {
         tokenizer.exit(Name::MdxJsxTagAttributePrimaryName);
@@ -735,8 +731,7 @@ pub fn attribute_primary_name_after(tokenizer: &mut Tokenizer) -> State {
         }
         _ => {
             // End of tag / new attribute.
-            if kind_after_index(tokenizer.parse_state.bytes, tokenizer.point.index)
-                == CharacterKind::Whitespace
+            if tokenizer.current_kind() == CharacterKind::Whitespace
                 || matches!(tokenizer.current, Some(b'/' | b'>' | b'{'))
                 || id_start_opt(char_after_index(
                     tokenizer.parse_state.bytes,
@@ -792,8 +787,7 @@ pub fn attribute_local_name_before(tokenizer: &mut Tokenizer) -> State {
 /// ```
 pub fn attribute_local_name(tokenizer: &mut Tokenizer) -> State {
     // End of local name (note that we don’t expect another colon).
-    if kind_after_index(tokenizer.parse_state.bytes, tokenizer.point.index)
-        == CharacterKind::Whitespace
+    if tokenizer.current_kind() == CharacterKind::Whitespace
         || matches!(tokenizer.current, Some(b'/' | b'=' | b'>' | b'{'))
     {
         tokenizer.exit(Name::MdxJsxTagAttributeNameLocal);
@@ -1038,9 +1032,7 @@ pub fn es_whitespace_start(tokenizer: &mut Tokenizer) -> State {
             State::Next(StateName::MdxJsxEsWhitespaceEolAfter)
         }
         _ => {
-            if kind_after_index(tokenizer.parse_state.bytes, tokenizer.point.index)
-                == CharacterKind::Whitespace
-            {
+            if tokenizer.current_kind() == CharacterKind::Whitespace {
                 tokenizer.enter(Name::MdxJsxEsWhitespace);
                 State::Retry(StateName::MdxJsxEsWhitespaceInside)
             } else {
@@ -1070,10 +1062,7 @@ pub fn es_whitespace_inside(tokenizer: &mut Tokenizer) -> State {
             tokenizer.consume();
             State::Next(StateName::MdxJsxEsWhitespaceInside)
         }
-        Some(_)
-            if kind_after_index(tokenizer.parse_state.bytes, tokenizer.point.index)
-                == CharacterKind::Whitespace =>
-        {
+        Some(_) if tokenizer.current_kind() == CharacterKind::Whitespace => {
             tokenizer.consume();
             State::Next(StateName::MdxJsxEsWhitespaceInside)
         }

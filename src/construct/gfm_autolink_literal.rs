@@ -148,7 +148,7 @@ use crate::event::{Event, Kind, Name};
 use crate::state::{Name as StateName, State};
 use crate::tokenizer::Tokenizer;
 use crate::util::{
-    char::{kind_after_index, Kind as CharacterKind},
+    char::Kind as CharacterKind,
     slice::{Position, Slice},
 };
 use alloc::vec::Vec;
@@ -366,9 +366,7 @@ pub fn domain_inside(tokenizer: &mut Tokenizer) -> State {
         }
         _ => {
             // Source: <https://github.com/github/cmark-gfm/blob/ef1cfcb/extensions/autolink.c#L12>.
-            if kind_after_index(tokenizer.parse_state.bytes, tokenizer.point.index)
-                == CharacterKind::Other
-            {
+            if tokenizer.current_kind() == CharacterKind::Other {
                 tokenizer.tokenize_state.seen = true;
                 tokenizer.consume();
                 State::Next(StateName::GfmAutolinkLiteralDomainInside)
@@ -470,9 +468,7 @@ pub fn path_inside(tokenizer: &mut Tokenizer) -> State {
         }
         _ => {
             // Source: <https://github.com/github/cmark-gfm/blob/ef1cfcb/extensions/autolink.c#L12>.
-            if tokenizer.current.is_none()
-                || kind_after_index(tokenizer.parse_state.bytes, tokenizer.point.index)
-                    == CharacterKind::Whitespace
+            if tokenizer.current.is_none() || tokenizer.current_kind() == CharacterKind::Whitespace
             {
                 State::Retry(StateName::GfmAutolinkLiteralPathAfter)
             } else {
@@ -544,9 +540,7 @@ pub fn trail(tokenizer: &mut Tokenizer) -> State {
         }
         _ => {
             // Whitespace is the end of the URL, anything else is continuation.
-            if kind_after_index(tokenizer.parse_state.bytes, tokenizer.point.index)
-                == CharacterKind::Whitespace
-            {
+            if tokenizer.current_kind() == CharacterKind::Whitespace {
                 State::Ok
             } else {
                 State::Nok

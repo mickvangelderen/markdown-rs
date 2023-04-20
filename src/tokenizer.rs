@@ -655,6 +655,14 @@ impl<'a> Tokenizer<'a> {
 
         Ok(value)
     }
+
+    /// Returns the character kind at the current position.
+    ///
+    /// The `index` argument should be a character boundaries.
+    /// If it is not a charactar boundary, this function may return a character that does not actually exist in the source.
+    pub(crate) fn current_kind(&self) -> crate::util::char::Kind {
+        crate::util::char::kind_after_index(self.parse_state.bytes, self.point.index)
+    }
 }
 
 /// Move back past ignored bytes.
